@@ -10,7 +10,7 @@ logger = getLogger()
 class WarmupAndLinearScheduler(LRScheduler):
     def __init__(self, optimizer: Optimizer, start_warmup_lr, warmup_iters, base_lr, final_lr, total_iters):
         warmup_lr_schedule = np.linspace(start_warmup_lr, base_lr, warmup_iters)
-        linear_lr_schedule = np.linspace(base_lr, final_lr, total_iters+1)[warmup_iters:]
+        linear_lr_schedule = np.linspace(base_lr, final_lr, total_iters + 1)[warmup_iters:]
         self.lr_schedule = np.concatenate((warmup_lr_schedule, linear_lr_schedule))
         self.total_iters = total_iters
         super().__init__(optimizer, last_epoch=-1, verbose=False)

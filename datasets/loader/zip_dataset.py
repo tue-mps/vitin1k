@@ -264,7 +264,7 @@ class ImageOnlyZipDatasetWithFileName(torch.utils.data.Dataset):
             image_stem_suffix: str = "",
             image_folder_path_in_zip: Path = Path("./"),
             max_num_masks: Optional[int] = None,
-            valid_path_regex:str =None
+            valid_path_regex: str = None
     ):
         self.transforms = transforms
         self.max_num_masks = max_num_masks
@@ -338,7 +338,7 @@ class ImageOnlyZipDatasetWithFileName(torch.utils.data.Dataset):
         with image_zip.open(file_name) as image_file:
             image = Image.open(image_file).convert("RGB")
 
-        return list(self.transforms(image, None)) + [file_name,]
+        return list(self.transforms(image, None)) + [file_name, ]
 
     def __del__(self):
         for o in self.zip.values():

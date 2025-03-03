@@ -14,8 +14,10 @@ def multiscale_inference(network, img, crop_size, num_classes, ratios=(0.6, 1.0,
     for (h, w) in img_sizes:
         x1 = F.interpolate(img, size=(h, w), mode="bilinear")
         x2 = FV.hflip(x1)
-        logit1 = F.interpolate(slide_inference(network, x1, crop_size, num_classes), size=orig_img_size, mode="bilinear")
-        logit2 = F.interpolate(FV.hflip(slide_inference(network, x2, crop_size, num_classes)), size=orig_img_size, mode="bilinear")
+        logit1 = F.interpolate(slide_inference(network, x1, crop_size, num_classes), size=orig_img_size,
+                               mode="bilinear")
+        logit2 = F.interpolate(FV.hflip(slide_inference(network, x2, crop_size, num_classes)), size=orig_img_size,
+                               mode="bilinear")
         pred1 = torch.softmax(logit1, dim=1)
         pred2 = torch.softmax(logit2, dim=1)
         logit += [logit1.unsqueeze(0), logit2.unsqueeze(0)]

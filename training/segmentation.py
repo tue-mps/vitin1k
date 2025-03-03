@@ -1,27 +1,25 @@
-import copy
 import io
-import math
 import os
 from logging import info
 from typing import Optional, Tuple
 
 import lightning
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.optim.lr_scheduler import PolynomialLR
-from torchvision.transforms import v2 as TV
-from torchvision.transforms import functional as FV
 import wandb
 from PIL import Image
+from torch.optim.lr_scheduler import PolynomialLR
 from torchmetrics.classification import MulticlassJaccardIndex
+from torchvision.transforms import functional as FV
+from torchvision.transforms import v2 as TV
 
 from datasets.utils.mappings import get_label2name
 from datasets.utils.util import colorize_mask, normalize
 from models.utils.warmup_and_linear_scheduler import WarmupAndLinearScheduler
-
 from training.utils.inference_collection import slide_inference_pre_cropped
 from training.utils.utils import get_full_names, get_param_group, process_parameters
 
@@ -110,7 +108,6 @@ class Segmentation(lightning.LightningModule):
                 for _ in range(len(self.val_ds_names))
             ]
         )
-
 
         self._load_ckpt(ckpt_path)
         self.automatic_optimization = False
@@ -211,7 +208,7 @@ class Segmentation(lightning.LightningModule):
         self.trainer.logger.experiment.log(  # type: ignore
             {
                 f"train_debug": [
-                    wandb.Image(concatenated_image, file_type="jpg") # , file_type="jpg")
+                    wandb.Image(concatenated_image, file_type="jpg")  # , file_type="jpg")
                 ]
             }
         )

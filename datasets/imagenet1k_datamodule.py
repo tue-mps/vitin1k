@@ -1,9 +1,11 @@
 from os.path import join
 from typing import Union
 
+import numpy as np
 import torch
 import torchvision
 from torch.utils.data import get_worker_info
+from torchvision.transforms import v2 as TV
 
 from datasets.loader.in1k_zip_dataset import IN1KZipDataset
 from datasets.utils.custom_lightning_data_module import CustomLightningDataModule
@@ -32,12 +34,44 @@ class ImageNet1kDataModule(CustomLightningDataModule):
 
         self.save_hyperparameters(ignore=['_class_path', "class_path", "init_args"])
 
+        self.brightness_delta = 32 / 255.
+        self.contrast_delta = 0.5
+        self.saturation_delta = 0.5
+        self.hue_delta = 18 / 360.
+        self.color_jitter_probability = 0.8
+
+        blur_kernel_size = int(
+            np.floor(
+                np.ceil(0.1 * self.img_size) - 0.5 +
+                np.ceil(0.1 * self.img_size) % 2
+            )
+        )
+        #
+
+        self.random_aug_weak = TV.Compose([
+            TV.RandomApply([
+                TV.ColorJitter(
+                    brightness=self.brightness_delta,
+                    contrast=self.contrast_delta,
+                    saturation=self.saturation_delta,
+                    hue=self.hue_delta)], p=0.9),
+        ])
+        self.random_aug_strong = TV.Compose([
+            TV.RandomApply([TV.ColorJitter(
+                brightness=0.8, contrast=0.8,
+                saturation=0.8, hue=0.4)], p=0.8),
+            TV.RandomGrayscale(p=0.1),
+            TV.RandomApply([
+                TV.GaussianBlur(kernel_size=blur_kernel_size, sigma=(0.15, 3.0))], p=0.5),
+        ])
+
     def setup(self, stage: Union[str, None] = None) -> CustomLightningDataModule:
         train_transform = torchvision.transforms.Compose([
             torchvision.transforms.RandomHorizontalFlip(),
             torchvision.transforms.Resize(self.img_size),
             torchvision.transforms.RandomResizedCrop(self.img_size),
             torchvision.transforms.ToTensor(),
+            self.random_aug_weak,
         ])
         val_transform = torchvision.transforms.Compose([
             torchvision.transforms.Resize(self.img_size),

@@ -80,4 +80,3 @@ class IN1KZipDataset(torch.utils.data.Dataset):
         state = dict(self.__dict__)
         state["zip"] = {}
         return state
-

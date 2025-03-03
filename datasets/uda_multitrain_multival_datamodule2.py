@@ -2,12 +2,12 @@ from pathlib import Path
 from typing import Union, List
 
 import torch
-from datasets.transform.train.uda_transform2 import UDATransform2
 from torch.utils.data import get_worker_info
 
 import datasets
 from datasets.loader.zip_dataset import ZipDataset, ImageOnlyZipDataset
 from datasets.transform.inference.resize_and_crop_transform import ResizeAndCropTransform
+from datasets.transform.train.uda_transform2 import UDATransform2
 from datasets.utils.custom_lightning_data_module import CustomLightningDataModule
 from datasets.utils.mappings import get_cityscapes_mapping, get_mapillary_mapping, get_synthia_mapping, \
     get_urbansyn_mapping

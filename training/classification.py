@@ -4,13 +4,11 @@ from typing import Optional, Tuple
 
 import lightning
 import math
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.optim.lr_scheduler import PolynomialLR
 from torchmetrics.classification import MulticlassAccuracy
-from torchvision.transforms import v2 as TV
 
 from datasets.utils.mappings import get_label2name
 from datasets.utils.util import normalize
@@ -51,41 +49,7 @@ class Classification(lightning.LightningModule):
         self.lr_mode = lr_mode
         self.use_strong_aug_source = use_strong_aug_source
         self.use_pointrend = use_pointrend
-
-        self.brightness_delta = 32 / 255.
-        self.contrast_delta = 0.5
-        self.saturation_delta = 0.5
-        self.hue_delta = 18 / 360.
-        self.color_jitter_probability = 0.8
-
         self.save_hyperparameters()
-
-        blur_kernel_size = int(
-            np.floor(
-                np.ceil(0.1 * self.img_size) - 0.5 +
-                np.ceil(0.1 * self.img_size) % 2
-            )
-        )
-        #
-        random_aug_weak = TV.Compose([
-            TV.RandomApply([
-                TV.ColorJitter(
-                    brightness=self.brightness_delta,
-                    contrast=self.contrast_delta,
-                    saturation=self.saturation_delta,
-                    hue=self.hue_delta)], p=0.9),
-        ])
-        self.random_aug_weak = TV.Lambda(lambda x: torch.stack([random_aug_weak(x_) for x_ in x]))
-        #
-        random_aug_strong = TV.Compose([
-            TV.RandomApply([TV.ColorJitter(
-                brightness=0.8, contrast=0.8,
-                saturation=0.8, hue=0.4)], p=0.8),
-            TV.RandomGrayscale(p=0.1),
-            TV.RandomApply([
-                TV.GaussianBlur(kernel_size=blur_kernel_size, sigma=(0.15, 3.0))], p=0.5),
-        ])
-        self.random_aug_strong = TV.Lambda(lambda x: torch.stack([random_aug_strong(x_) for x_ in x]))
 
         self.network = network
 
@@ -101,17 +65,6 @@ class Classification(lightning.LightningModule):
         self._load_ckpt(ckpt_path)
         self.automatic_optimization = False
 
-    @torch.no_grad()
-    def train_dataprep(self, batch):
-        sourceds_image, sourceds_target = batch
-        batch_size, _, H, W = sourceds_image.shape
-        if self.use_strong_aug_source:
-            sourceds_color_aug_image = self.random_aug_strong(sourceds_image)
-        else:
-            sourceds_color_aug_image = self.random_aug_weak(sourceds_image)
-
-        return sourceds_image, sourceds_color_aug_image, sourceds_target
-
     def get_optimizers(self):
         opt = self.optimizers()
         opt.zero_grad()
@@ -124,8 +77,8 @@ class Classification(lightning.LightningModule):
     ):
         opt = self.get_optimizers()
 
-        sourceds_image, sourceds_color_aug_image, sourceds_target = self.train_dataprep(batch)
-        source_logits = self.network(normalize(sourceds_color_aug_image))
+        sourceds_image, sourceds_target = batch
+        source_logits = self.network(normalize(sourceds_image))
         loss_source = F.cross_entropy(source_logits, sourceds_target)
         self.manual_backward(loss_source)
         opt.step()
