@@ -20,6 +20,6 @@ model:
 data:
   class_path: datasets.imagenet1k_datamodule.ImageNet1kDataModule
   init_args:
-    batch_size: 8
+    batch_size: 16
     train_num_workers: 4
-    img_size: 1024
+    img_size: 448

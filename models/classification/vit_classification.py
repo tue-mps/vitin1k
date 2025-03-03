@@ -13,19 +13,11 @@ class VITClassification(nn.Module):
             model_name: str,
             num_classes: int,
             patch_size: int = 14,
-            in_img_scale: float = 1.1,
-            align_corners: bool = False,
     ):
         super().__init__()
         self.img_size = img_size
         self.patch_size = patch_size
         self.num_classes = num_classes
-        self.align_corners = align_corners
-
-        if 1.0 == in_img_scale:
-            self.vit_in_img_size = int(math.ceil(float(img_size) / self.patch_size) * self.patch_size)
-        else:
-            self.vit_in_img_size = int((img_size * in_img_scale) // self.patch_size * self.patch_size)
 
         self.encoder = torch.hub.load('facebookresearch/dinov2', model_name)
 
@@ -74,12 +66,7 @@ class VITClassification(nn.Module):
     def forward(self, img, mask_ratio=0.0):
         b, c, h, w = img.shape
         assert h == w
-        orig_img_size = [h, w]
-        img = F.interpolate(
-            img,
-            size=(self.vit_in_img_size, self.vit_in_img_size),
-            mode="bilinear", align_corners=self.align_corners
-        )
+
         feats = self.forward_features(img, mask_ratio)
         logit = self.out(feats)
 

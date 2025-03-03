@@ -24,7 +24,6 @@ class Classification(lightning.LightningModule):
             batch_size: int,
             img_size: int,
             network: nn.Module,
-            num_classes: int,
             lr: float = 5e-5,
             lr_multiplier: float = 0.01,
             layerwise_lr_decay: float = 1.0,
@@ -48,7 +47,6 @@ class Classification(lightning.LightningModule):
         self.poly_lr_decay_power = poly_lr_decay_power
         self.weight_decay = weight_decay
         self.ignore_index = ignore_index
-        self.num_classes = num_classes
         self.warmup_iters = warmup_iters
         self.lr_mode = lr_mode
         self.use_strong_aug_source = use_strong_aug_source
@@ -95,7 +93,7 @@ class Classification(lightning.LightningModule):
         self.val_ds_names = ["val"]
         self.metrics = nn.ModuleList(
             [
-                MulticlassAccuracy(num_classes=self.num_classes)
+                MulticlassAccuracy(num_classes=self.network.num_classes)
                 for _ in range(len(self.val_ds_names))
             ]
         )
