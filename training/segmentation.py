@@ -26,13 +26,13 @@ from training.utils.inference_collection import slide_inference_pre_cropped
 from training.utils.utils import get_full_names, get_param_group, process_parameters
 
 
-class Segmentation():#lightning.LightningModule):
+class Segmentation(lightning.LightningModule):
     def __init__(
             self,
             batch_size: int,
             img_size: int,
             network: nn.Module,
-            lr: float = 5e-5,
+            lr: float = 3e-5,
             lr_multiplier: float = 0.01,
             layerwise_lr_decay: float = 1.0,
             poly_lr_decay_power: float = 0.9,

@@ -45,7 +45,6 @@ class UDAMultiTrainMultiValDataModule2(CustomLightningDataModule):
             train_num_workers=train_num_workers,
         )
         self.val_num_workers = val_num_workers
-        self.cat_max_ratio = cat_max_ratio
         self.use_rcs = False
         self.val_batch_size = 1
         self.sources = sources if sources is not None else []
@@ -252,42 +251,6 @@ class UDAMultiTrainMultiValDataModule2(CustomLightningDataModule):
             image_suffix=".png",
             image_stem_suffix="leftImg8bit",
             zip_path=Path(self.root, "leftImg8bit_trainextra.zip"),
-        )
-
-        self.cityscapes_train_foggy01_dataset = ZipDataset(
-            transforms=self.cityscapes_foggy_train_transforms,
-            image_folder_path_in_zip=Path("./leftImg8bit_foggy/train"),
-            target_folder_path_in_zip=Path("./gtFine/train"),
-            image_suffix= ".png",
-            target_suffix= ".png",
-            image_stem_suffix= "leftImg8bit_foggy_beta_0.01",
-            target_stem_suffix= "gtFine_labelIds",
-            zip_path= Path(self.root, "leftImg8bit_trainvaltest_foggy.zip"),
-            target_zip_path= Path(self.root, "gtFine_trainvaltest.zip"),
-        )
-
-        self.cityscapes_train_foggy02_dataset = ZipDataset(
-            transforms=self.cityscapes_foggy_train_transforms,
-            image_folder_path_in_zip=Path("./leftImg8bit_foggy/train"),
-            target_folder_path_in_zip=Path("./gtFine/train"),
-            image_suffix=".png",
-            target_suffix=".png",
-            image_stem_suffix="leftImg8bit_foggy_beta_0.02",
-            target_stem_suffix="gtFine_labelIds",
-            zip_path=Path(self.root, "leftImg8bit_trainvaltest_foggy.zip"),
-            target_zip_path=Path(self.root, "gtFine_trainvaltest.zip"),
-        )
-
-        self.cityscapes_train_foggy005_dataset = ZipDataset(
-            transforms=self.cityscapes_foggy_train_transforms,
-            image_folder_path_in_zip=Path("./leftImg8bit_foggy/train"),
-            target_folder_path_in_zip=Path("./gtFine/train"),
-            image_suffix=".png",
-            target_suffix=".png",
-            image_stem_suffix="leftImg8bit_foggy_beta_0.005",
-            target_stem_suffix="gtFine_labelIds",
-            zip_path=Path(self.root, "leftImg8bit_trainvaltest_foggy.zip"),
-            target_zip_path=Path(self.root, "gtFine_trainvaltest.zip"),
         )
 
         self.bdd100k_train_dataset = ZipDataset(
